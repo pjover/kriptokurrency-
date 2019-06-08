@@ -1,7 +1,7 @@
 package com.kriptokurrency.bo
 
-import com.kriptokurrency.Constants
-import com.kriptokurrency.aux.TestTimeManager
+import com.kriptokurrency.GENESIS_BLOCK
+import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -15,7 +15,7 @@ internal class BlockUT {
         fun `it should have a timestamp, lastHash, hash and data property`() {
 
             // Given a timestamp, lastHash, hash and data
-            val timestamp = TestTimeManager.INSTANT.toEpochMilli()
+            val timestamp = 1560017716L
             val lastHash = "foo-hash"
             val hash = "bar-hash"
             val data = listOf("blockchain", "data")
@@ -38,7 +38,7 @@ internal class BlockUT {
             val genesisBlock = Block.genesis()
 
             // Then it should be a Block instance
-            genesisBlock shouldBe Constants.GENESIS_BLOCK
+            genesisBlock shouldBe GENESIS_BLOCK
         }
 
     }
@@ -50,15 +50,15 @@ internal class BlockUT {
         fun `mineBlock() sets the lastHash and data correctly`() {
 
             // Given the last block and the mined data
-            val timestamp = TestTimeManager.INSTANT.toEpochMilli()
-            val lastBlock = Constants.GENESIS_BLOCK
+            val timestamp = System.currentTimeMillis()
+            val lastBlock = GENESIS_BLOCK
             val data = listOf("mined data")
 
             // When we call mineBlock()
-            val mineBlock = Block.mineBlock(timestamp, lastBlock, data)
+            val mineBlock = Block.mineBlock(lastBlock, data)
 
             // Then the data shold be the input data
-            mineBlock.timestamp shouldBe timestamp
+            mineBlock.timestamp shouldBeGreaterThanOrEqual timestamp
             mineBlock.lastHash shouldBe lastBlock.hash
             mineBlock.hash shouldBe "SAH-256 hash still not implemented"
             mineBlock.data shouldBe data

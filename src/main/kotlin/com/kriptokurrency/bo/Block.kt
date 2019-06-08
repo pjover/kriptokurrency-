@@ -1,6 +1,6 @@
 package com.kriptokurrency.bo
 
-import com.kriptokurrency.Constants.Companion.GENESIS_BLOCK
+import com.kriptokurrency.GENESIS_BLOCK
 
 data class Block(
         val timestamp: Long,
@@ -10,8 +10,12 @@ data class Block(
 ) {
     companion object {
         fun genesis() = GENESIS_BLOCK
-        fun mineBlock(timestamp: Long, lastBlock: Block, data: List<Any>): Block {
-            return Block(timestamp, lastBlock.hash, computeHash(), data)
+        fun mineBlock(lastBlock: Block, data: List<Any>): Block {
+            return Block(
+                    System.currentTimeMillis(),
+                    lastBlock.hash,
+                    computeHash(),
+                    data)
         }
 
         fun computeHash() = "SAH-256 hash still not implemented"
