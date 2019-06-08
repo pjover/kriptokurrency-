@@ -10,5 +10,10 @@ data class Block(
 ) {
     companion object {
         fun genesis() = GENESIS_BLOCK
+        fun mineBlock(timestamp: Long, lastBlock: Block, data: List<Any>): Block {
+            return Block(timestamp, lastBlock.hash, computeHash(), data)
+        }
+
+        fun computeHash() = "SAH-256 hash still not implemented"
     }
 }
