@@ -1,6 +1,7 @@
 package com.kriptokurrency.bo
 
 import com.kriptokurrency.GENESIS_BLOCK
+import com.kriptokurrency.cryptoHash
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
 import io.kotlintest.shouldBe
 import org.junit.jupiter.api.Nested
@@ -57,11 +58,17 @@ internal class BlockUT {
             // When we call mineBlock()
             val mineBlock = Block.mineBlock(lastBlock, data)
 
-            // Then the data shold be the input data
+            // Then the timestamp should be correct
             mineBlock.timestamp shouldBeGreaterThanOrEqual timestamp
+
+            // And the lastHash should be the hash of the last block
             mineBlock.lastHash shouldBe lastBlock.hash
-            mineBlock.hash shouldBe "SAH-256 hash still not implemented"
+
+            // And the data shoul be the imput data
             mineBlock.data shouldBe data
+
+            // And creates a SHA-256 hash based on the proper inputs
+            mineBlock.hash shouldBe cryptoHash(listOf(mineBlock.timestamp, lastBlock.hash, data))
         }
     }
 }

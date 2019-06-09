@@ -10,7 +10,7 @@ internal class CryptoHashUT {
     inner class `CryptoHash tests` {
 
         @Test
-        fun `hash() generate a SHA-256 hashed output`() {
+        fun `cryptoHash() generate a SHA-256 hashed output`() {
 
             // Given a text to hash
             val texts = listOf("foo")
@@ -23,11 +23,11 @@ internal class CryptoHashUT {
         }
 
         @Test
-        fun `hash() produces the same hash with the same inputs arguments in any order`() {
+        fun `cryptoHash() produces the same hash with the same inputs arguments in any order`() {
 
             // Given some texts to hash
-            val texts1 = listOf("one", "two", "three")
-            val texts2 = listOf("three", "one", "two")
+            val texts1 = listOf(1, "two", "three")
+            val texts2 = listOf("three", 1, "two")
 
             // When we call to hash()
             val actual1 = cryptoHash(texts1)
