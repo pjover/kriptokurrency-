@@ -22,24 +22,24 @@ internal class BlockUT {
             val data = listOf("blockchain", "data")
 
             // And a Block
-            val block = Block(timestamp, lastHash, hash, data)
+            val sut = Block(timestamp, lastHash, hash, data)
 
             // When we call the properties getters
             // Then it should match the constructor parameters
-            block.timestamp shouldBe timestamp
-            block.lastHash shouldBe lastHash
-            block.hash shouldBe hash
-            block.data shouldBe data
+            sut.timestamp shouldBe timestamp
+            sut.lastHash shouldBe lastHash
+            sut.hash shouldBe hash
+            sut.data shouldBe data
         }
 
         @Test
         fun `genesis() should return the GENESIS_BLOCK`() {
 
             // Given a genesis block
-            val genesisBlock = Block.genesis()
+            val sut = Block.genesis()
 
             // Then it should be a Block instance
-            genesisBlock shouldBe GENESIS_BLOCK
+            sut shouldBe GENESIS_BLOCK
         }
 
     }
@@ -56,19 +56,19 @@ internal class BlockUT {
             val data = listOf("mined data")
 
             // When we call mineBlock()
-            val mineBlock = Block.mineBlock(lastBlock, data)
+            val sut = Block.mineBlock(lastBlock, data)
 
             // Then the timestamp should be correct
-            mineBlock.timestamp shouldBeGreaterThanOrEqual timestamp
+            sut.timestamp shouldBeGreaterThanOrEqual timestamp
 
             // And the lastHash should be the hash of the last block
-            mineBlock.lastHash shouldBe lastBlock.hash
+            sut.lastHash shouldBe lastBlock.hash
 
             // And the data shoul be the imput data
-            mineBlock.data shouldBe data
+            sut.data shouldBe data
 
             // And creates a SHA-256 hash based on the proper inputs
-            mineBlock.hash shouldBe cryptoHash(listOf(mineBlock.timestamp, lastBlock.hash, data))
+            sut.hash shouldBe cryptoHash(listOf(sut.timestamp, lastBlock.hash, data))
         }
     }
 }
