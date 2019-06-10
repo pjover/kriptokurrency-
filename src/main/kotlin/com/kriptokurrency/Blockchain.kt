@@ -18,9 +18,22 @@ class Blockchain(
         }
 
         private fun isValidChain(chain: MutableList<Block>): Boolean {
-            if (chain.first() != Block.genesis()) return false
-            return chain.filter { isInvalidBlock(it) }.isEmpty()
+            if (firstBlockIsNotGenesis(chain)) return false
+            if (!allBlocksAreChained(chain)) return false
+            return allBlocksAreValid(chain)
         }
+
+        private fun firstBlockIsNotGenesis(chain: MutableList<Block>) = chain.first() != Block.genesis()
+
+        private fun allBlocksAreChained(chain: MutableList<Block>): Boolean {
+
+            for (i in 1 until chain.size) {
+                if (chain[i].lastHash != chain[i - 1].hash) return false
+            }
+            return true
+        }
+
+        private fun allBlocksAreValid(chain: MutableList<Block>) = chain.filter { isInvalidBlock(it) }.isEmpty()
 
         private fun isInvalidBlock(block: Block) = cryptoHash(listOf(block.timestamp, block.lastHash, block.data)) != block.hash
     }
