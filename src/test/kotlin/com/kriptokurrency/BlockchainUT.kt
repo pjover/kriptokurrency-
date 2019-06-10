@@ -3,6 +3,8 @@ package com.kriptokurrency
 import com.kriptokurrency.bo.Block
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.DescribeSpec
+import io.mockk.*
+import mu.KLogger
 
 class BlockchainUT : DescribeSpec({
 
@@ -50,6 +52,7 @@ class BlockchainUT : DescribeSpec({
             }
 
             context("and a lastHash reference has changed returns false") {
+
                 before()
 
                 blockchain.chain[2] = Block(
@@ -64,6 +67,7 @@ class BlockchainUT : DescribeSpec({
             }
 
             context("and the chain contains a block with an invalid field") {
+
                 before()
 
                 blockchain.chain[2] = Block(
@@ -78,6 +82,7 @@ class BlockchainUT : DescribeSpec({
             }
 
             context("and the chain does not contain any invalid blocks") {
+
                 before()
 
                 it("returns true") {
@@ -89,12 +94,19 @@ class BlockchainUT : DescribeSpec({
 
     describe("replaceChain()") {
 
+        val logger = mockk<KLogger>()
+
         lateinit var blockchain: Blockchain
         lateinit var originalChain: MutableList<Block>
         lateinit var newChain: Blockchain
 
-        fun before() { // TODO Pending to find the way to automatize
-            blockchain = Blockchain()
+        fun before1() { // TODO Pending to find the way to automatize
+
+            clearMocks(logger)
+            every { logger.error(any<String>()) } just runs
+            every { logger.info(any<String>()) } just runs
+
+            blockchain = Blockchain(logger)
             blockchain.addBlock(listOf("fooA", "barA"))
             originalChain = blockchain.chain
 
@@ -104,25 +116,35 @@ class BlockchainUT : DescribeSpec({
 
         context("when the new chain is not longer") {
 
-            before()
+            fun before2() { // TODO Pending to find the way to automatize
+                before1()
+                blockchain.replaceChain(newChain.chain)
+            }
 
             context("when the two chains are equal") {
 
-                it("does not replace the chain") {
-                    blockchain.replaceChain(newChain.chain)
+                before2()
 
+                it("does not replace the chain") {
                     blockchain.chain shouldBe originalChain
+                }
+
+                it("logs an error") {
+                    verify(exactly = 1) { logger.error(any<String>()) }
                 }
             }
 
             context("when the new chain is shorter") {
 
-                newChain = Blockchain()
+                before2()
 
                 it("does not replace the chain") {
-                    blockchain.replaceChain(newChain.chain)
-
                     blockchain.chain shouldBe originalChain
+                }
+
+                it("logs an error") {
+                    verify(exactly = 1) { logger.error(any<String>()) }
+
                 }
             }
 
@@ -130,36 +152,42 @@ class BlockchainUT : DescribeSpec({
 
         context("when the new chain is longer") {
 
-            fun before2() { // TODO Pending to find the way to automatize
-                before()
+            fun before3() { // TODO Pending to find the way to automatize
+                before1()
                 newChain.addBlock(listOf("foo1", "bar1"))
             }
 
             context("and the chain is invalid") {
 
-                before2()
-
+                before3()
                 newChain.chain[1] = Block(
                         newChain.chain[1].timestamp,
                         newChain.chain[1].lastHash,
                         newChain.chain[1].hash,
                         listOf("some-bad-and-evil-data"))
 
-                it("does not replace the chain") {
-                    blockchain.replaceChain(newChain.chain)
+                blockchain.replaceChain(newChain.chain)
 
+                it("does not replace the chain") {
                     blockchain.chain shouldBe originalChain
+                }
+
+                it("logs an error") {
+                    verify(exactly = 1) { logger.error(any<String>()) }
                 }
             }
 
             context("and the chain is valid") {
 
-                before2()
+                before3()
+                blockchain.replaceChain(newChain.chain)
 
                 it("replaces the chain") {
-                    blockchain.replaceChain(newChain.chain)
-
                     blockchain.chain shouldBe newChain.chain
+                }
+
+                it("logs about the chain replacement") {
+                    verify(exactly = 1) { logger.info(any<String>()) }
                 }
             }
 

@@ -1,15 +1,16 @@
 package com.kriptokurrency
 
 import com.kriptokurrency.bo.Block
+import mu.KLogger
 import mu.KotlinLogging
 
-class Blockchain() {
+class Blockchain(
+        private val logger: KLogger = KotlinLogging.logger {}
+) {
 
     var chain = mutableListOf(Block.genesis())
 
     companion object {
-
-        private val logger = KotlinLogging.logger {}
 
         fun isValid(blockchain: Blockchain): Boolean {
 
@@ -37,13 +38,13 @@ class Blockchain() {
 
     private fun cannotReplaceChain(newChain: MutableList<Block>): Boolean {
         if (this.chain.size >= newChain.size) {
-            logger.error { "The incoming chain must be longer" }
+            logger.error("The incoming chain must be longer")
             return true
         } else if (!isValidChain(newChain)) {
-            logger.error { "The incoming chain must be valid" }
+            logger.error("The incoming chain must be valid")
             return true
         }
-        logger.info { "Replacing chain with $chain" }
+        logger.info("Replacing chain with $chain")
         return false
     }
 }
