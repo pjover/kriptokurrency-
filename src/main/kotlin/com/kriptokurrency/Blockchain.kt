@@ -1,10 +1,28 @@
 package com.kriptokurrency
 
 import com.kriptokurrency.bo.Block
+import mu.KotlinLogging
 
 class Blockchain() {
 
     var chain = mutableListOf(Block.genesis())
+
+    companion object {
+
+        private val logger = KotlinLogging.logger {}
+
+        fun isValid(blockchain: Blockchain): Boolean {
+
+            return isValidChain(blockchain.chain)
+        }
+
+        private fun isValidChain(chain: MutableList<Block>): Boolean {
+            if (chain.first() != Block.genesis()) return false
+            return chain.filter { isInvalidBlock(it) }.isEmpty()
+        }
+
+        private fun isInvalidBlock(block: Block) = cryptoHash(listOf(block.timestamp, block.lastHash, block.data)) != block.hash
+    }
 
     fun addBlock(data: List<Any>) {
 
@@ -12,14 +30,20 @@ class Blockchain() {
         chain.add(block)
     }
 
-    companion object {
+    fun replaceChain(newChain: MutableList<Block>) {
+        if (cannotReplaceChain(newChain)) return
+        this.chain = newChain
+    }
 
-        fun isValid(blockchain: Blockchain): Boolean {
-
-            if (blockchain.chain.first() != Block.genesis()) return false
-            return blockchain.chain.filter { isInvalid(it) }.isEmpty()
+    private fun cannotReplaceChain(newChain: MutableList<Block>): Boolean {
+        if (this.chain.size >= newChain.size) {
+            logger.error { "The incoming chain must be longer" }
+            return true
+        } else if (!isValidChain(newChain)) {
+            logger.error { "The incoming chain must be valid" }
+            return true
         }
-
-        private fun isInvalid(block: Block) = cryptoHash(listOf(block.timestamp, block.lastHash, block.data)) != block.hash
+        logger.info { "Replacing chain with $chain" }
+        return false
     }
 }

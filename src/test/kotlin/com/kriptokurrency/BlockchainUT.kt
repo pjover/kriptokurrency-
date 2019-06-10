@@ -40,7 +40,8 @@ class BlockchainUT : DescribeSpec({
 
         context("when the chain starts with the genesis block and has multiple blocks") {
 
-            var blockchain = Blockchain()
+            lateinit var blockchain: Blockchain
+
             fun before() { // TODO Pending to find the way to automatize
                 blockchain = Blockchain()
                 blockchain.addBlock(listOf("foo1", "bar1"))
@@ -56,6 +57,7 @@ class BlockchainUT : DescribeSpec({
                         "broken-lastHash",
                         blockchain.chain[2].hash,
                         blockchain.chain[2].data)
+
                 it("returns false") {
                     Blockchain.isValid(blockchain) shouldBe false
                 }
@@ -69,6 +71,7 @@ class BlockchainUT : DescribeSpec({
                         blockchain.chain[2].lastHash,
                         blockchain.chain[2].hash,
                         listOf("some-bad-and-evil-data"))
+
                 it("returns false") {
                     Blockchain.isValid(blockchain) shouldBe false
                 }
@@ -81,6 +84,85 @@ class BlockchainUT : DescribeSpec({
                     Blockchain.isValid(blockchain) shouldBe true
                 }
             }
+        }
+    }
+
+    describe("replaceChain()") {
+
+        lateinit var blockchain: Blockchain
+        lateinit var originalChain: MutableList<Block>
+        lateinit var newChain: Blockchain
+
+        fun before() { // TODO Pending to find the way to automatize
+            blockchain = Blockchain()
+            blockchain.addBlock(listOf("fooA", "barA"))
+            originalChain = blockchain.chain
+
+            newChain = Blockchain()
+            newChain.addBlock(listOf("fooB", "barB"))
+        }
+
+        context("when the new chain is not longer") {
+
+            before()
+
+            context("when the two chains are equal") {
+
+                it("does not replace the chain") {
+                    blockchain.replaceChain(newChain.chain)
+
+                    blockchain.chain shouldBe originalChain
+                }
+            }
+
+            context("when the new chain is shorter") {
+
+                newChain = Blockchain()
+
+                it("does not replace the chain") {
+                    blockchain.replaceChain(newChain.chain)
+
+                    blockchain.chain shouldBe originalChain
+                }
+            }
+
+        }
+
+        context("when the new chain is longer") {
+
+            fun before2() { // TODO Pending to find the way to automatize
+                before()
+                newChain.addBlock(listOf("foo1", "bar1"))
+            }
+
+            context("and the chain is invalid") {
+
+                before2()
+
+                newChain.chain[1] = Block(
+                        newChain.chain[1].timestamp,
+                        newChain.chain[1].lastHash,
+                        newChain.chain[1].hash,
+                        listOf("some-bad-and-evil-data"))
+
+                it("does not replace the chain") {
+                    blockchain.replaceChain(newChain.chain)
+
+                    blockchain.chain shouldBe originalChain
+                }
+            }
+
+            context("and the chain is valid") {
+
+                before2()
+
+                it("replaces the chain") {
+                    blockchain.replaceChain(newChain.chain)
+
+                    blockchain.chain shouldBe newChain.chain
+                }
+            }
+
         }
 
     }
