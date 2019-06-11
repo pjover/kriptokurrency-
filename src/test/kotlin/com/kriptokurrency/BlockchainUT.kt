@@ -34,7 +34,9 @@ class BlockchainUT : DescribeSpec() {
                         System.currentTimeMillis(),
                         "---",
                         "xxx",
-                        listOf("foo", "bar"))
+                        listOf("foo", "bar"),
+                        1,
+                        1)
 
                 it("returns false") {
                     Blockchain.isValid(blockchain) shouldBe false
@@ -52,7 +54,9 @@ class BlockchainUT : DescribeSpec() {
                             blockchain.chain[2].timestamp,
                             "broken-lastHash",
                             blockchain.chain[2].hash,
-                            blockchain.chain[2].data)
+                            blockchain.chain[2].data,
+                            1,
+                            1)
 
                     it("returns false") {
                         Blockchain.isValid(blockchain) shouldBe false
@@ -64,7 +68,9 @@ class BlockchainUT : DescribeSpec() {
                             blockchain.chain[2].timestamp,
                             blockchain.chain[2].lastHash,
                             blockchain.chain[2].hash,
-                            listOf("some-bad-and-evil-data"))
+                            listOf("some-bad-and-evil-data"),
+                            1,
+                            1)
 
                     it("returns false") {
                         Blockchain.isValid(blockchain) shouldBe false
@@ -127,7 +133,9 @@ class BlockchainUT : DescribeSpec() {
                             newChain.chain[1].timestamp,
                             newChain.chain[1].lastHash,
                             newChain.chain[1].hash,
-                            listOf("some-bad-and-evil-data"))
+                            listOf("some-bad-and-evil-data"),
+                            1,
+                            1)
                     blockchain.replaceChain(newChain.chain)
 
                     it("does not replace the chain") {

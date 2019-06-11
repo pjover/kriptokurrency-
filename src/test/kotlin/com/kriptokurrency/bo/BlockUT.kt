@@ -13,13 +13,17 @@ class BlockUT : DescribeSpec({
         val lastHash = "foo-hash"
         val hash = "bar-hash"
         val data = listOf("blockchain", "data")
-        val block = Block(timestamp, lastHash, hash, data)
+        val difficulty = 1
+        val nonce = 1L
+        val block = Block(timestamp, lastHash, hash, data, difficulty, nonce)
 
         it("has a timestamp, lastHash, hash, and data property") {
             block.timestamp shouldBe timestamp
             block.lastHash shouldBe lastHash
             block.hash shouldBe hash
             block.data shouldBe data
+            block.nonce shouldBe nonce
+            block.difficulty shouldBe difficulty
         }
     }
 
@@ -50,7 +54,18 @@ class BlockUT : DescribeSpec({
         }
 
         it("creates a SHA-256 `hash` based on the proper inputs") {
-            minedBlock.hash shouldBe cryptoHash(listOf(minedBlock.timestamp, lastBlock.hash, data))
+            minedBlock.hash shouldBe
+                    cryptoHash(listOf(
+                            minedBlock.timestamp,
+                            minedBlock.nonce,
+                            minedBlock.difficulty,
+                            lastBlock.hash,
+                            data)
+                    )
+        }
+
+        it("sets a hash that matches the difficulty criteria") {
+            minedBlock.hash.startsWith("0".repeat(minedBlock.difficulty)) shouldBe true
         }
     }
 })

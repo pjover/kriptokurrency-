@@ -7,7 +7,9 @@ data class Block(
         val timestamp: Long,
         val lastHash: String,
         val hash: String,
-        val data: List<Any>
+        val data: List<Any>,
+        val difficulty: Int,
+        val nonce: Long
 ) {
     companion object {
 
@@ -15,12 +17,20 @@ data class Block(
 
         fun mineBlock(lastBlock: Block, data: List<Any>): Block {
 
-            val timestamp = System.currentTimeMillis()
             val lastHash = lastBlock.hash
-            return Block(timestamp,
-                    lastHash,
-                    cryptoHash(listOf(timestamp, lastHash, data)),
-                    data)
+            val difficulty = lastBlock.difficulty
+            val prefix = "0".repeat(difficulty)
+
+            var timestamp: Long
+            var nonce = 0L
+            var hash: String
+            do {
+                nonce++
+                timestamp = System.currentTimeMillis()
+                hash = cryptoHash(listOf(timestamp, lastHash, data, difficulty, nonce))
+            } while (!hash.startsWith(prefix))
+
+            return Block(timestamp, lastHash, hash, data, difficulty, nonce)
         }
     }
 }
