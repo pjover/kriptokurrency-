@@ -1,197 +1,156 @@
 package com.kriptokurrency
 
 import com.kriptokurrency.bo.Block
+import io.kotlintest.IsolationMode
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.DescribeSpec
 import io.mockk.*
 import mu.KLogger
 
-class BlockchainUT : DescribeSpec({
+class BlockchainUT : DescribeSpec() {
 
-    describe("Blockchain") {
+    override fun isolationMode() = IsolationMode.InstancePerLeaf
 
-        val blockchain = Blockchain()
-
-        it("starts with the genesis block") {
-            blockchain.chain[0] shouldBe Block.genesis()
-        }
-
-        it("adds a new block to the chain") {
-            val data = listOf("foo bar")
-            blockchain.addBlock(data)
-
-            blockchain.chain.last().data shouldBe data
-        }
-    }
-
-    describe("isValidChain()") {
-
-        context("when the chain does not start with the genesis block") {
-
+    init {
+        describe("Blockchain") {
             val blockchain = Blockchain()
-            blockchain.chain[0] = Block(
-                    System.currentTimeMillis(),
-                    "---",
-                    "xxx",
-                    listOf("foo", "bar"))
 
-            it("returns false") {
-                Blockchain.isValid(blockchain) shouldBe false
+            it("starts with the genesis block") {
+                blockchain.chain[0] shouldBe Block.genesis()
+            }
+
+            it("adds a new block to the chain") {
+                val data = listOf("foo bar")
+                blockchain.addBlock(data)
+
+                blockchain.chain.last().data shouldBe data
             }
         }
 
-        context("when the chain starts with the genesis block and has multiple blocks") {
+        describe("isValidChain()") {
+            context("when the chain does not start with the genesis block") {
+                val blockchain = Blockchain()
+                blockchain.chain[0] = Block(
+                        System.currentTimeMillis(),
+                        "---",
+                        "xxx",
+                        listOf("foo", "bar"))
 
-            lateinit var blockchain: Blockchain
+                it("returns false") {
+                    Blockchain.isValid(blockchain) shouldBe false
+                }
+            }
 
-            fun before() { // TODO Pending to find the way to automatize
-                blockchain = Blockchain()
+            context("when the chain starts with the genesis block and has multiple blocks") {
+                val blockchain = Blockchain()
                 blockchain.addBlock(listOf("foo1", "bar1"))
                 blockchain.addBlock(listOf("foo2", "bar2"))
                 blockchain.addBlock(listOf("foo3", "bar3"))
-            }
 
-            context("and a lastHash reference has changed returns false") {
+                context("and a lastHash reference has changed returns false") {
+                    blockchain.chain[2] = Block(
+                            blockchain.chain[2].timestamp,
+                            "broken-lastHash",
+                            blockchain.chain[2].hash,
+                            blockchain.chain[2].data)
 
-                before()
-
-                blockchain.chain[2] = Block(
-                        blockchain.chain[2].timestamp,
-                        "broken-lastHash",
-                        blockchain.chain[2].hash,
-                        blockchain.chain[2].data)
-
-                it("returns false") {
-                    Blockchain.isValid(blockchain) shouldBe false
+                    it("returns false") {
+                        Blockchain.isValid(blockchain) shouldBe false
+                    }
                 }
-            }
 
-            context("and the chain contains a block with an invalid field") {
+                context("and the chain contains a block with an invalid field") {
+                    blockchain.chain[2] = Block(
+                            blockchain.chain[2].timestamp,
+                            blockchain.chain[2].lastHash,
+                            blockchain.chain[2].hash,
+                            listOf("some-bad-and-evil-data"))
 
-                before()
-
-                blockchain.chain[2] = Block(
-                        blockchain.chain[2].timestamp,
-                        blockchain.chain[2].lastHash,
-                        blockchain.chain[2].hash,
-                        listOf("some-bad-and-evil-data"))
-
-                it("returns false") {
-                    Blockchain.isValid(blockchain) shouldBe false
+                    it("returns false") {
+                        Blockchain.isValid(blockchain) shouldBe false
+                    }
                 }
-            }
 
-            context("and the chain does not contain any invalid blocks") {
+                context("and the chain does not contain any invalid blocks") {
 
-                before()
-
-                it("returns true") {
-                    Blockchain.isValid(blockchain) shouldBe true
+                    it("returns true") {
+                        Blockchain.isValid(blockchain) shouldBe true
+                    }
                 }
             }
         }
-    }
 
-    describe("replaceChain()") {
-
-        val logger = mockk<KLogger>()
-
-        lateinit var blockchain: Blockchain
-        lateinit var originalChain: MutableList<Block>
-        lateinit var newChain: Blockchain
-
-        fun before1() { // TODO Pending to find the way to automatize
-
-            clearMocks(logger)
+        describe("replaceChain()") {
+            val logger = mockk<KLogger>()
             every { logger.error(any<String>()) } just runs
             every { logger.info(any<String>()) } just runs
 
-            blockchain = Blockchain(logger)
+            val blockchain = Blockchain(logger)
             blockchain.addBlock(listOf("fooA", "barA"))
-            originalChain = blockchain.chain
+            val originalChain = blockchain.chain
 
-            newChain = Blockchain()
+            val newChain = Blockchain()
             newChain.addBlock(listOf("fooB", "barB"))
-        }
 
-        context("when the new chain is not longer") {
-
-            fun before2() { // TODO Pending to find the way to automatize
-                before1()
+            context("when the new chain is not longer") {
                 blockchain.replaceChain(newChain.chain)
+
+                context("when the two chains are equal") {
+
+                    it("does not replace the chain") {
+                        blockchain.chain shouldBe originalChain
+                    }
+
+                    it("logs an error") {
+                        verify(exactly = 1) { logger.error(any<String>()) }
+                    }
+                }
+
+                context("when the new chain is shorter") {
+
+                    it("does not replace the chain") {
+                        blockchain.chain shouldBe originalChain
+                    }
+
+                    it("logs an error") {
+                        verify(exactly = 1) { logger.error(any<String>()) }
+                    }
+                }
+
             }
 
-            context("when the two chains are equal") {
-
-                before2()
-
-                it("does not replace the chain") {
-                    blockchain.chain shouldBe originalChain
-                }
-
-                it("logs an error") {
-                    verify(exactly = 1) { logger.error(any<String>()) }
-                }
-            }
-
-            context("when the new chain is shorter") {
-
-                before2()
-
-                it("does not replace the chain") {
-                    blockchain.chain shouldBe originalChain
-                }
-
-                it("logs an error") {
-                    verify(exactly = 1) { logger.error(any<String>()) }
-
-                }
-            }
-
-        }
-
-        context("when the new chain is longer") {
-
-            fun before3() { // TODO Pending to find the way to automatize
-                before1()
+            context("when the new chain is longer") {
                 newChain.addBlock(listOf("foo1", "bar1"))
-            }
 
-            context("and the chain is invalid") {
+                context("and the chain is invalid") {
+                    newChain.chain[1] = Block(
+                            newChain.chain[1].timestamp,
+                            newChain.chain[1].lastHash,
+                            newChain.chain[1].hash,
+                            listOf("some-bad-and-evil-data"))
+                    blockchain.replaceChain(newChain.chain)
 
-                before3()
-                newChain.chain[1] = Block(
-                        newChain.chain[1].timestamp,
-                        newChain.chain[1].lastHash,
-                        newChain.chain[1].hash,
-                        listOf("some-bad-and-evil-data"))
+                    it("does not replace the chain") {
+                        blockchain.chain shouldBe originalChain
+                    }
 
-                blockchain.replaceChain(newChain.chain)
-
-                it("does not replace the chain") {
-                    blockchain.chain shouldBe originalChain
+                    it("logs an error") {
+                        verify(exactly = 1) { logger.error(any<String>()) }
+                    }
                 }
 
-                it("logs an error") {
-                    verify(exactly = 1) { logger.error(any<String>()) }
-                }
-            }
+                context("and the chain is valid") {
+                    blockchain.replaceChain(newChain.chain)
 
-            context("and the chain is valid") {
+                    it("replaces the chain") {
+                        blockchain.chain shouldBe newChain.chain
+                    }
 
-                before3()
-                blockchain.replaceChain(newChain.chain)
-
-                it("replaces the chain") {
-                    blockchain.chain shouldBe newChain.chain
-                }
-
-                it("logs about the chain replacement") {
-                    verify(exactly = 1) { logger.info(any<String>()) }
+                    it("logs about the chain replacement") {
+                        verify(exactly = 1) { logger.info(any<String>()) }
+                    }
                 }
             }
-
         }
-
     }
-})
+}
