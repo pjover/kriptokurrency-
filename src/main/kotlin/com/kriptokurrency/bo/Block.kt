@@ -1,6 +1,7 @@
 package com.kriptokurrency.bo
 
 import com.kriptokurrency.GENESIS_BLOCK
+import com.kriptokurrency.MINE_RATE
 import com.kriptokurrency.cryptoHash
 
 data class Block(
@@ -32,5 +33,15 @@ data class Block(
 
             return Block(timestamp, lastHash, hash, data, difficulty, nonce)
         }
+
+        fun adjustDifficulty(originalBlock: Block, timestamp: Long): Int {
+
+            return if (timestamp - originalBlock.timestamp > MINE_RATE) {
+                originalBlock.difficulty - 1
+            } else {
+                originalBlock.difficulty + 1
+            }
+        }
+
     }
 }

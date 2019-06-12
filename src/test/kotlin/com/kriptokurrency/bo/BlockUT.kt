@@ -1,6 +1,7 @@
 package com.kriptokurrency.bo
 
 import com.kriptokurrency.GENESIS_BLOCK
+import com.kriptokurrency.MINE_RATE
 import com.kriptokurrency.cryptoHash
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
 import io.kotlintest.shouldBe
@@ -66,6 +67,30 @@ class BlockUT : DescribeSpec({
 
         it("sets a hash that matches the difficulty criteria") {
             minedBlock.hash.startsWith("0".repeat(minedBlock.difficulty)) shouldBe true
+        }
+    }
+
+    describe("adjustDifficulty()") {
+        val timestamp = 2000L
+        val lastHash = "foo-hash"
+        val hash = "bar-hash"
+        val data = listOf("blockchain", "data")
+        val difficulty = 1
+        val nonce = 1L
+        val block = Block(timestamp, lastHash, hash, data, difficulty, nonce)
+
+        it("raises the difficulty for a quickly mined block") {
+            Block.adjustDifficulty(
+                    block,
+                    block.timestamp + MINE_RATE - 100
+            ) shouldBe block.difficulty + 1
+        }
+
+        it("lowers the difficulty for a slowly mined block") {
+            Block.adjustDifficulty(
+                    block,
+                    block.timestamp + MINE_RATE + 100
+            ) shouldBe block.difficulty - 1
         }
     }
 })

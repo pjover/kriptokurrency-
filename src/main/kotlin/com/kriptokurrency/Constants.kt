@@ -3,6 +3,8 @@ package com.kriptokurrency
 import com.kriptokurrency.bo.Block
 import java.time.Instant
 
+const val MINE_RATE = 1000
+
 const val INITIAL_DIFFICULTY = 3
 
 val GENESIS_BLOCK = Block(
