@@ -1,6 +1,5 @@
-package com.kriptokurrency
+package com.kriptokurrency.core
 
-import com.kriptokurrency.bo.Block
 import mu.KLogger
 import mu.KotlinLogging
 import kotlin.math.abs

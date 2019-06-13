@@ -1,9 +1,4 @@
-package com.kriptokurrency.bo
-
-import com.kriptokurrency.GENESIS_BLOCK
-import com.kriptokurrency.MINE_RATE
-import com.kriptokurrency.cryptoHash
-import com.kriptokurrency.hexToBinary
+package com.kriptokurrency.core
 
 data class Block(
         val timestamp: Long,

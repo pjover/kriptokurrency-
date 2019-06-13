@@ -9,5 +9,5 @@ import org.springframework.context.annotation.Profile
 @Configuration
 @ComponentScan(basePackages = ["com.kriptokurrency"])
 @EnableAutoConfiguration()
-class IntegrationTestConfiguration
+class ITConfiguration
 

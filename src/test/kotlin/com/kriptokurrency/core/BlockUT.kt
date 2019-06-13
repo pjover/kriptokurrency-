@@ -1,9 +1,5 @@
-package com.kriptokurrency.bo
+package com.kriptokurrency.core
 
-import com.kriptokurrency.GENESIS_BLOCK
-import com.kriptokurrency.MINE_RATE
-import com.kriptokurrency.cryptoHash
-import com.kriptokurrency.hexToBinary
 import io.kotlintest.inspectors.forOne
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
 import io.kotlintest.shouldBe

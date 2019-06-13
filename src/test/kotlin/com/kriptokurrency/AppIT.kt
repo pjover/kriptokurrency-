@@ -2,7 +2,7 @@ package com.kriptokurrency
 
 import org.junit.jupiter.api.Test
 
-class KriptokurrencyApplicationIT : AbstractIT() {
+class AppIT : AbstractIT() {
 
     @Test
     fun contextLoads() {

@@ -1,6 +1,5 @@
-package com.kriptokurrency
+package com.kriptokurrency.core
 
-import com.kriptokurrency.bo.Block
 import io.kotlintest.IsolationMode
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.DescribeSpec

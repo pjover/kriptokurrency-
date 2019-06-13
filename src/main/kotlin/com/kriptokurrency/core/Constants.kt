@@ -1,6 +1,5 @@
-package com.kriptokurrency
+package com.kriptokurrency.core
 
-import com.kriptokurrency.bo.Block
 import java.time.Instant
 
 const val MINE_RATE = 1000

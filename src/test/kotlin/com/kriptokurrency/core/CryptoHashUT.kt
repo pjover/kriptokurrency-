@@ -1,4 +1,4 @@
-package com.kriptokurrency
+package com.kriptokurrency.core
 
 import io.kotlintest.shouldBe
 import io.kotlintest.specs.DescribeSpec

@@ -1,4 +1,4 @@
-package com.kriptokurrency
+package com.kriptokurrency.core
 
 import org.apache.commons.codec.digest.DigestUtils
 
