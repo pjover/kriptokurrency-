@@ -19,27 +19,27 @@ data class Block(
         fun mineBlock(lastBlock: Block, data: List<Any>): Block {
 
             val lastHash = lastBlock.hash
-            val difficulty = lastBlock.difficulty
-            val prefix = "0".repeat(difficulty)
 
+            var difficulty: Int
             var timestamp: Long
             var nonce = 0L
             var hash: String
             do {
                 nonce++
                 timestamp = System.currentTimeMillis()
+                difficulty = adjustDifficulty(lastBlock, timestamp)
                 hash = cryptoHash(listOf(timestamp, lastHash, data, difficulty, nonce))
-            } while (!hash.startsWith(prefix))
+            } while (!hash.startsWith("0".repeat(difficulty)))
 
             return Block(timestamp, lastHash, hash, data, difficulty, nonce)
         }
 
         fun adjustDifficulty(originalBlock: Block, timestamp: Long): Int {
 
-            return if (timestamp - originalBlock.timestamp > MINE_RATE) {
-                originalBlock.difficulty - 1
-            } else {
-                originalBlock.difficulty + 1
+            return when {
+                originalBlock.difficulty < 1 -> 1
+                timestamp - originalBlock.timestamp > MINE_RATE -> originalBlock.difficulty - 1
+                else -> originalBlock.difficulty + 1
             }
         }
 
