@@ -35,7 +35,10 @@ class Blockchain(
 
         private fun allBlocksAreValid(chain: MutableList<Block>) = chain.filter { isInvalidBlock(it) }.isEmpty()
 
-        private fun isInvalidBlock(block: Block) = cryptoHash(listOf(block.timestamp, block.lastHash, block.data)) != block.hash
+        private fun isInvalidBlock(block: Block): Boolean {
+            return if (block == GENESIS_BLOCK) false
+            else cryptoHash(listOf(block.timestamp, block.nonce, block.difficulty, block.lastHash, block.data)) != block.hash
+        }
     }
 
     fun addBlock(data: List<Any>) {
