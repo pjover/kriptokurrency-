@@ -77,6 +77,24 @@ class BlockchainUT : DescribeSpec() {
                     }
                 }
 
+                context("and a chain contains a block with a jumped difficulty") {
+                    val lastBlock = blockchain.chain.last()
+                    val lastHash = lastBlock.hash
+                    val timestamp = System.currentTimeMillis()
+                    val nonce = 0L
+                    val data = emptyList<String>()
+                    val difficulty = lastBlock.difficulty - 3
+                    val hash = cryptoHash(listOf(timestamp, lastHash, data, difficulty, nonce))
+                    val badBlock = Block(
+                            timestamp, lastHash, hash, data, difficulty, nonce
+                    )
+                    blockchain.chain.add(badBlock)
+
+                    it("returns false") {
+                        Blockchain.isValid(blockchain) shouldBe false
+                    }
+                }
+
                 context("and the chain does not contain any invalid blocks") {
 
                     it("returns true") {
