@@ -3,6 +3,7 @@ package com.kriptokurrency.bo
 import com.kriptokurrency.GENESIS_BLOCK
 import com.kriptokurrency.MINE_RATE
 import com.kriptokurrency.cryptoHash
+import com.kriptokurrency.hexToBinary
 import io.kotlintest.inspectors.forOne
 import io.kotlintest.matchers.numerics.shouldBeGreaterThanOrEqual
 import io.kotlintest.shouldBe
@@ -69,7 +70,7 @@ class BlockUT : DescribeSpec() {
             }
 
             it("sets a hash that matches the difficulty criteria") {
-                minedBlock.hash.startsWith("0".repeat(minedBlock.difficulty)) shouldBe true
+                hexToBinary(minedBlock.hash).startsWith("0".repeat(minedBlock.difficulty)) shouldBe true
             }
 
             it("adjust the difficulty") {

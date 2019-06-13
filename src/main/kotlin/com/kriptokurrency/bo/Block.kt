@@ -3,6 +3,7 @@ package com.kriptokurrency.bo
 import com.kriptokurrency.GENESIS_BLOCK
 import com.kriptokurrency.MINE_RATE
 import com.kriptokurrency.cryptoHash
+import com.kriptokurrency.hexToBinary
 
 data class Block(
         val timestamp: Long,
@@ -29,10 +30,12 @@ data class Block(
                 timestamp = System.currentTimeMillis()
                 difficulty = adjustDifficulty(lastBlock, timestamp)
                 hash = cryptoHash(listOf(timestamp, lastHash, data, difficulty, nonce))
-            } while (!hash.startsWith("0".repeat(difficulty)))
+            } while (doesNotMatchDifficulty(hash, difficulty))
 
             return Block(timestamp, lastHash, hash, data, difficulty, nonce)
         }
+
+        private fun doesNotMatchDifficulty(hash: String, difficulty: Int) = !hexToBinary(hash).startsWith("0".repeat(difficulty))
 
         fun adjustDifficulty(originalBlock: Block, timestamp: Long): Int {
 
